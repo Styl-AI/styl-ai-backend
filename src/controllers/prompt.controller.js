@@ -5,7 +5,14 @@ const Prompt = require("../models/prompt.modal");
 const User = require("../models/user.model");
 const { createOrUpdateNewConversation } = require("../utils/utils.conversation");
 
-// This Controller is used to resposne the user's queries
+/**
+ * Responds to user queries by generating AI replies based on the provided prompt, user ID, and conversation ID.
+ * Also extracts personalized data from the prompt and updates the user's personalized data if available.
+ * 
+ * @param {Object} req - The request object containing the prompt, user ID, and conversation ID in the body.
+ * @param {Object} res - The response object to send back the generated AI replies and status.
+ * @returns {Object} JSON response indicating the status and the result containing AI responses and updated conversation details.
+ */
 async function generatingAIReplies(req, res) {
   try {
     const { prompt = '', userId = '', conversationId = '' } = req.body;
@@ -57,7 +64,6 @@ async function extractPersonalizedData(prompt,userId){
   try {
     const response = await extractUserPersonalizationData(prompt);
     if(response){
-      console.log("personalized dartaaaaaaaaa",response)
       const aiResponse = response?.choices[0]?.message?.content ? JSON.parse(response.choices[0].message?.content) : null;
       if(aiResponse && aiResponse?.personalized_data  !="no"){
         await User.findByIdAndUpdate(userId,{ $push: { "user_personalized_data": aiResponse } })
@@ -70,6 +76,15 @@ async function extractPersonalizedData(prompt,userId){
   }
 }
 
+
+
+/**
+ * Retrieves product recommendations based on user queries or prompts, and updates the conversation with the results.
+ * 
+ * @param {Object} req - The request object containing the user queries, prompt, conversation ID, and user ID in the body.
+ * @param {Object} res - The response object to send back the generated product recommendations and status.
+ * @returns {Object} JSON response indicating the status and the result containing product recommendations and updated conversation details.
+ */
 async function productRecommender(req, res) {
   try {
     // Destructure request body
@@ -130,6 +145,13 @@ async function productRecommender(req, res) {
 
 
 
+/**
+ * Generates product research based on the provided prompt and updates the conversation with the results.
+ * 
+ * @param {Object} req - The request object containing the prompt, conversation ID, and user ID in the body.
+ * @param {Object} res - The response object to send back the generated product research and status.
+ * @returns {Object} JSON response indicating the status and the result containing product research details and updated conversation details.
+ */
 async function generateProductResearch(req, res) {
   try {
     const {prompt ='',conversationId='',userId='',} = req.body;
@@ -149,6 +171,14 @@ async function generateProductResearch(req, res) {
 }
 
 
+
+/**
+ * Retrieves the list of prompts, accessible only to users with an 'admin' role.
+ * 
+ * @param {Object} req - The request object containing the user ID in the body.
+ * @param {Object} res - The response object to send back the list of prompts and status.
+ * @returns {Object} JSON response indicating the status and the list of prompts.
+ */
 async function retrievePromptDetails(req, res){
   try {
       const {userId=''} = req.body 
@@ -161,16 +191,23 @@ async function retrievePromptDetails(req, res){
       }
       return res.status(200).json({status: false, promptsList:[]})
   } catch (error) {
-      console.log("error while retrieving prompts list",error);
+      console.error("error while retrieving prompts list",error);
       return res.status(200).json({status: false, promptsList:[]})
   }
 }
 
 
 
+
+/**
+ * Updates a prompt, accessible only to users with an 'admin' role.
+ * 
+ * @param {Object} req - The request object containing the user ID, prompt ID, and data to update in the body.
+ * @param {Object} res - The response object to send back the status of the update operation.
+ * @returns {Object} JSON response indicating the status of the update operation.
+ */
 async function updatePrompt(req, res) {
   try {
-    console.log("req.bodyreq.bodyreq.bodyreq.bodyreq.body",req.body)
     const { userId = "", promptId = "", data } = req.body;
     const findUser = await User.findById({ _id: userId });
     if (findUser && findUser.role == "admin" && promptId && data) {
@@ -179,7 +216,7 @@ async function updatePrompt(req, res) {
     }
     return res.status(200).json({ status: false });
   } catch (error) {
-    console.log("error while updatinng prompts lists", error);
+    console.error("error while updatinng prompts lists", error);
     return res.status(200).json({ status: false });
   }
 }
