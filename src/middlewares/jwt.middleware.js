@@ -3,6 +3,11 @@ const JWT = require('jsonwebtoken');
 const { JWT_TOKEN } = require('../constants/env.contant');
 
 
+/**
+ * Decodes a JWT token using the provided secret key.
+ * @param {string} token - The JWT token to decode.
+ * @returns {Object|boolean} The decoded JWT payload if successful, otherwise false.
+ */
 function JWTDecoder(token){
   try {
     return JWT.verify(token,JWT_TOKEN);
@@ -11,6 +16,13 @@ function JWTDecoder(token){
   }
 }
 
+
+/**
+ * Middleware function to handle JWT verification.
+ * @param {Object} req - The HTTP request object.
+ * @param {Object} res - The HTTP response object.
+ * @param {Function} next - The next middleware function.
+ */
 async function handleJWTVerification(req, res, next){
     try {
   

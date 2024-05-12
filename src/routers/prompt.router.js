@@ -7,6 +7,5 @@ promptRouter.post('/product-list',productRecommender)
 promptRouter.post('/research',generateProductResearch)
 promptRouter.post('/get-prompts',retrievePromptDetails)
 promptRouter.post('/update-prompt',updatePrompt)
-// promptRouter.post('/generate-personalized-results',extractPersonalizedData)
 
 module.exports = promptRouter;

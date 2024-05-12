@@ -3,6 +3,7 @@ const {
   OPEN_API_KEY,
   SERP_API_KEY,
   GPT_MODAL,
+  PROMPT_ID,
 } = require("../constants/env.contant");
 const { getJson } = require("serpapi");
 const { extractShoppingResults } = require("../utils/utils.ai");
@@ -14,9 +15,14 @@ const apiKey = OPEN_API_KEY;
 const client = new openai.OpenAI({ apiKey });
 
 
+/**
+ * Checks the availability of a specific prompt type in the database.
+ * @param {string} promptType - The type of prompt to check availability for.
+ * @returns {Object} An object indicating whether the prompt is available and, if so, the prompt data.
+ */
 async function checkPromptAvailability(promptType) {
   try {
-    const prompt = await Prompt.findOne({_id : 'prompt_6ThuKMByJWRPHWMfd'}).lean();;
+    const prompt = await Prompt.findOne({}).lean();
 
     if (prompt && prompt.hasOwnProperty(promptType)) {
       return { havePrompt: true, prompt: prompt[promptType] };
@@ -28,13 +34,19 @@ async function checkPromptAvailability(promptType) {
   }
 }
 
-// Function to generate product recommendations
+
+/**
+ * Generates product recommendations based on user query.
+ * @param {string} userInput - The user's input/query.
+ * @returns {Object} A response containing product recommendations.
+ */
 async function generateRecommendations(userInput) {
   try {
     let PROMPT =  DEFAULT_PROMTS["reply_to_user_prompt"]
      const checkDBPrompt = await checkPromptAvailability("reply_to_user_prompt")
+
+
      if(checkDBPrompt?.havePrompt){
-        console.log("Updated Prompt",checkDBPrompt?.prompt)
         PROMPT = checkDBPrompt?.prompt
      }
 
@@ -57,7 +69,6 @@ async function generateRecommendations(userInput) {
       response_format:  {type:'json_object'},
     });
 
-    // console.log("recommendations results ::",JSON.stringify(completion))
     return completion;
   } catch (error) {
     console.error("Error while  generating recommendations:", error);
@@ -65,9 +76,15 @@ async function generateRecommendations(userInput) {
   }
 }
 
+
+/**
+ * Retrieves Google search (shopping section) results for a given query.
+ * @param {string} query - The search query.
+ * @returns {Object} An object containing extracted shopping results.
+ */
 async function getGoogleSearchResults(query) {
   try {
-    // console.log("query",query)
+
     const response = await getJson({
       api_key: SERP_API_KEY,
       engine: "google_shopping",
@@ -90,6 +107,12 @@ async function getGoogleSearchResults(query) {
   }
 }
 
+
+/**
+ * Combines multiple user queries into a single coherent query.
+ * @param {Array} queries - An array of user queries to be merged.
+ * @returns {Object} A response containing the merged query.
+ */
 async function combineUserQueriesToSingle(queries) {
   try {
     const PROMPT = `
@@ -114,17 +137,24 @@ async function combineUserQueriesToSingle(queries) {
 
     return completion;
   } catch (error) {
-    console.log("Error while combining user queries to single query", error);
+    console.error("Error while combining user queries to single query", error);
     return [];
   }
 }
 
+
+
+/**
+ * Conducts research on a given topic and provides an AI reply.
+ * @param {string} prompt - The user query or prompt related to the topic.
+ * @returns {Object} A response containing the AI's research-based reply.
+ */
 async function researchOnTopic(prompt) {
   try {
     let PROMPT =  DEFAULT_PROMTS["search_on_topic_prompt"]
     const checkDBPrompt = await checkPromptAvailability("search_on_topic_prompt")
+    
     if(checkDBPrompt?.havePrompt){
-       console.log("Updated Prompt",checkDBPrompt?.prompt)
        PROMPT = checkDBPrompt?.prompt
     }
 
@@ -149,20 +179,25 @@ async function researchOnTopic(prompt) {
     });
     return completion;
   } catch (error) {
-    console.log("Error while researching on a topic", error);
+    console.error("Error while researching on a topic", error);
     return [];
   }
 }
 
 
+
+/**
+ * Extracts user personalization data from a given prompt or query.
+ * @param {string} prompt - The user query or prompt containing personalization data.
+ * @returns {Object} A response containing insights and relevant data points in JSON format, or "personalized_data":"no" if no personal data was found.
+ */
 async function extractUserPersonalizationData(prompt) {
   try {
     let PROMPT = DEFAULT_PROMTS["user_personalization_prompt"]
 
     const checkDBPrompt = await checkPromptAvailability("user_personalization_prompt")
-    console.log("checkDBPromptcheckDBPromptcheckDBPromptcheckDBPromptcheckDBPromptcheckDBPrompt",checkDBPrompt)
+
     if(checkDBPrompt?.havePrompt && checkDBPrompt?.havePrompt != false){
-       console.log("Updated Prompt",checkDBPrompt?.prompt)
        PROMPT = checkDBPrompt?.prompt
     }
 
@@ -172,7 +207,6 @@ async function extractUserPersonalizationData(prompt) {
     Prompt : ${PROMPT},
     Response Format : If the query reveals personal information, return the insights and the relevant data points in JSON format. Otherwise, return  "personalized_data":"no" to indicate no personal data was found.
    `
-   console.log("finalized Promptttttt",FINAL_PROMPT)
     
     const completion = await client.chat.completions.create({
       messages: [
@@ -184,7 +218,7 @@ async function extractUserPersonalizationData(prompt) {
     });
     return completion;
   } catch (error) {
-    console.log("Error while researching on a topic", error);
+    console.error("Error while researching on a topic", error);
     return [];
   }
 }
