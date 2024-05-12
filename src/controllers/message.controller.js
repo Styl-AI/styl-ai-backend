@@ -1,12 +1,17 @@
-// async function updateProductClickCount(response) {
-//     try {
-//         const products = response.conversation.google_search_response;
-//         const productIdToUpdate = '3942827788408882937'; // Example product ID to update
-//         const messageID = response._id; // Assuming you have a unique identifier for the message
-
 const Conversation = require("../models/conversation.modal");
 const Messages = require("../models/messages.modal");
 
+
+/**
+ * Update the click count of a product based on the provided message ID and product ID.
+ * Optionally, increments the conversation count if conversation ID is provided.
+ * 
+ * @param {Object} req - The request object containing the message ID, product ID, and optionally conversation ID in the body.
+ * @param {Object} res - The response object to send back the status of the update operation.
+ * @returns {Object} JSON response indicating the status of the update operation.
+ *                  If successful, returns status true.
+ *                  If unsuccessful or missing required IDs, returns status false.
+ */
 async function updateProdutClickCount(req, res) {
   try {
     const { messageId = "", productId = "",conversationId='' } = req.body;
@@ -23,8 +28,8 @@ async function updateProdutClickCount(req, res) {
               const productToUpdate = messageDetails.find(
                   (product) => product?.product_id === productId
                   );
-              console.log("find Messages", productToUpdate);
-              if (productToUpdate) { // Check if productToUpdate is not undefined
+
+              if (productToUpdate) { 
                   if (!productToUpdate.hasOwnProperty("clickCount")) {
                       productToUpdate["clickCount"] = 0; // Initialize clickCount if not present
                   }
@@ -48,7 +53,7 @@ async function updateProdutClickCount(req, res) {
       }
     return res.status(200).json({ status: false });
   } catch (error) {
-    console.log("error while updating product click count", error);
+    console.error("error while updating product click count", error);
     return res.status(200).json({ status: false });
   }
 }

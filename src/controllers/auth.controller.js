@@ -2,8 +2,13 @@ const User = require("../models/user.model")
 const CryptoJS = require('crypto-js')
 const { generateAccessToken } = require("../utils/utils.jwt");
 
-
-// This Controller is used to Register a new user
+/**
+ * Registers a new user.
+ * 
+ * @param {Object} req - The request object containing user data in the body.
+ * @param {Object} res - The response object to send back the result.
+ * @returns {Object} Returns a response indicating success or failure with appropriate message and user details.
+ */
 async function registerUser(req, res) {
     try {
       const { firstName='',lastName='',email='',password='',role=''} = req.body;
@@ -30,13 +35,20 @@ async function registerUser(req, res) {
       return res.status(200).json({status: true, token: token, user: savedUser, msg: "User Successfully Created !!" });
   
     } catch (error) {
-      console.log("error while creating a new user", error)
+      console.error("error while creating a new user", error)
       return res.status(400).send({ status: false, msg: "Encountered an error while creating a new user. Please refresh the page and try again.", user: {} })
   
     }
   }
 
 
+/**
+* Logs in a user.
+* 
+* @param {Object} req - The request object containing user credentials (email and password).
+* @param {Object} res - The response object to send back the result.
+* @returns {Object} Returns a response indicating success or failure with appropriate message and user details.
+*/
   async function logIn(req, res) {
     try {
       const { email, password } = req.body;
@@ -56,11 +68,11 @@ async function registerUser(req, res) {
       const passwordMatch = (decryptedPassword === decrytedActualPassword)
   
       if (!passwordMatch) {
-        return res.status(200).send({ status: false, msg: "Incorrect username or password." });
+        return res.status(200).send({ status: false, msg: "Incorrect password." });
       }
       if (user && user["_id"]) {
         // if(user.blocked){
-        //   return res.status(200).json({token: null,user: {}, newUser:false, status:false, haveSchedule:false,msg: "Access Denied: User Blocked by Admin. For assistance, please reach out to the administrator."});
+        //   return res.status(200).json({token: null,user: {},msg: "Access Denied: User Blocked by Admin. For assistance, please reach out to the administrator."});
         // }
         const token = generateAccessToken({ user: user['_id'] });
         return res.status(200).json({ token: token, user: user, newUser: false, status: true, msg: "User LoggedIn successfully !!" });
