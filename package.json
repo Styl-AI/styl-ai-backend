@@ -1,14 +1,14 @@
 {
-  "name": "erline-backend",
+  "name": "styl-ai-backend",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["styl-ai-backend","nodejs","expressjs"],
+  "author": "Jagroop Singh",
+  "license": "MIT",
   "dependencies": {
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

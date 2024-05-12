@@ -8,7 +8,7 @@ function generateAccessToken(data) {
     try {
       return JWT.sign(data, JWT_TOKEN, { expiresIn: '14400s' });
     } catch (error) {
-      console.log("error while generating access token",error)
+      console.error("error while generating access token",error)
       return false
     }
 }

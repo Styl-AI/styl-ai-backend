@@ -5,7 +5,6 @@ const conversationRouter = require("./conversation.router");
 const messageRouter = require("./mesage.router");
 const promptRouter = require("./prompt.router");
 const userRouter = require("./users.router");
-// const { handleJWTVerification } = require("../middleware/jwt.middleware");
 
 const router = Router();
 

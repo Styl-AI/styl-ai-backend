@@ -1,10 +1,19 @@
 const Conversation = require("../models/conversation.modal");
 const Messages = require("../models/messages.modal");
 
+
+/**
+ * Creates or updates a conversation and its associated messages in the database.
+ * @param {Object} options - Object containing conversation and user details.
+ * @param {string} options.conversationId - The ID of the conversation (optional).
+ * @param {string} options.userId - The ID of the user associated with the conversation.
+ * @param {string} options.updatedResponse - The updated response for the conversation.
+ * @param {string} options.prompt - The prompt/title associated with the conversation.
+ * @returns {Object|boolean} An object containing conversation, user, and message IDs if successful, otherwise false.
+ */
 async function createOrUpdateNewConversation({ conversationId = '', userId = '', updatedResponse, prompt = '' }) {
     try {
-        console.log("createOrUpdateNewConversation", { conversationId, userId, updatedResponse, prompt });
-
+        
         const chatDetails = { userId, conversationId, conversation: updatedResponse };
         const newChat = new Messages(chatDetails);
         const savedChat = await newChat.save();
@@ -23,8 +32,6 @@ async function createOrUpdateNewConversation({ conversationId = '', userId = '',
 
         resultantData.messageId = savedChat._id;
         resultantData.userId = userId;
-
-        console.log("createOrUpdateNewConversation saved data", resultantData);
         
         return resultantData.conversationId ? resultantData : false;
     } catch (error) {
@@ -33,7 +40,11 @@ async function createOrUpdateNewConversation({ conversationId = '', userId = '',
     }
 }
 
-
+/**
+ * Groups links based on their click count from a list of conversations.
+ * @param {Array} conversationsList - List of conversations to analyze.
+ * @returns {Array} An array of links grouped by their click count.
+ */
 function groupByClickCountLinks(conversationsList) {
 
     try {
@@ -50,7 +61,7 @@ function groupByClickCountLinks(conversationsList) {
         return groupedResponses;
         
     } catch (error) {
-        console.log("error while grouping up click count events",error);
+        console.error("error while grouping up click count events",error);
         return {}
     }
 }
